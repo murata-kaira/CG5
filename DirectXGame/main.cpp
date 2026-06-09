@@ -5,6 +5,10 @@
 
 using namespace KamataEngine;
 
+
+ID3DBlob* CompileShader(const std::wstring& filePath, const std::string& shaderModel);
+
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
@@ -65,11 +69,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 
-	//コンパイル済みのshader、エラー時情報の格納場所の用意
+	/*//コンパイル済みのshader、エラー時情報の格納場所の用意
 	ID3DBlob* vsBlob = nullptr; // 頂点シェーダー
 	ID3DBlob* psBlob = nullptr; // ピクセルシェーダー
 	ID3DBlob* errorBlob = nullptr; // エラーオブジェクト
-
 	//頂点シェーダの読み込みとコンパイル
 	std::wstring vsFile = L"Resources/Shaders/TestVS.hlsl";
 	hr = D3DCompileFromFile(
@@ -105,6 +108,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 		assert(false);
 	}
+	*/
+
+	// 頂点シェーダの読み込みとコンパイル
+	ID3DBlob* vsBlob = CompileShader(L"Resources/Shaders/TestVS.hlsl", "vs_5_0");
+	assert(vsBlob != nullptr);
+		
+	// ピクセルシェーダの読み込みとコンパイル
+	ID3DBlob* psBlob = CompileShader(L"Resources/Shaders/TestPS.hlsl", "ps_5_0");
+	assert(psBlob != nullptr);
+
+
+	
+	
 
 
 
@@ -203,9 +219,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	vertexResource->Release();
 	graphicsPipelineState->Release();
 	signatureBlob->Release();
-	if (errorBlob) {
+
+	/* if (errorBlob) {
 		errorBlob->Release();
 	}
+	*/
+
 	rootSignature->Release();
 	vsBlob->Release();
 	psBlob->Release();
@@ -216,12 +235,31 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	//エンジンの終了処理
 	KamataEngine::Finalize();
 
-
-
-
-
-
-
-
 	return 0;
 }
+
+ID3DBlob* CompileShader(const std::wstring& filePath, const std::string& shaderModel) {
+	ID3DBlob* shaderBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+
+	HRESULT hr = D3DCompileFromFile(
+	    filePath.c_str(), // シェーダーファイル名
+	    nullptr,
+	    D3D_COMPILE_STANDARD_FILE_INCLUDE,               // インクルード可能にする
+	    "main", shaderModel.c_str(),                     // エントリーポイント名、シェーダーモデル指定
+	    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
+	    0, &shaderBlob, &errorBlob);
+
+	// エラーが発生した場合、止める
+	if (FAILED(hr)) {
+		if (errorBlob) {
+
+			OutputDebugStringA(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+			errorBlob->Release();
+		}
+		assert(false);
+	}
+	// 生成したshaderBlobを返す
+	return shaderBlob;
+}
+
