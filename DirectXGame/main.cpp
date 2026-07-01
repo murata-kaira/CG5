@@ -5,6 +5,7 @@
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 using namespace KamataEngine;
 
@@ -100,19 +101,48 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	SetupPipelineState(pipelineState, rs, vs, ps);
 
 	
+	struct VertexData {
+		Vector4 position;
+	};
+
+	//頂点データの準備
+	VertexData vertices[] = {
+	    {0.0f, 0.5f, 0.0f, 1.0f}, //上
+	    {0.5f, -0.5f, 0.0f, 1.0f},   // 右下
+	    {-0.5f, -0.5f, 0.0f, 1.0f},  // 左下
+	};
+
+
 	// VertexBufferの生成-----------------
 	VertexBuffer vb;
-	vb.Create(sizeof(Vector4) * 3, sizeof(Vector4));
-
+	//vb.Create(sizeof(Vector4) * 3, sizeof(Vector4));
+	vb.Create(sizeof(vertices), sizeof(vertices[0]));
 	
+	//頂点リソースに書き込む-------------
+	VertexData* pGpuVertexData = nullptr;
+	vb.Get()->Map(0, nullptr, reinterpret_cast<void**>(& pGpuVertexData));
 
-	// 頂点リソースにデータを書き込む--------
-	Vector4* vertexData = nullptr;
-	vb.Get()->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	vertexData[0] = {-0.5f, -0.5f, 0.0f, 1.0f}; // 左下
-	vertexData[1] = {0.0f, 0.5f, 0.0f, 1.0f}; // 上
-	vertexData[2] = {0.5f, -0.5f, 0.0f, 1.0f}; // 右下
-	
+	for (int i = 0; i < _countof(vertices); i++) {
+		pGpuVertexData[i] = vertices[i];
+	}
+
+	uint16_t indices[] = {
+		0, 1, 2
+	};
+
+	//IndexBufferの生成-----------------
+	IndexBuffer ib;
+	ib.Create(sizeof(indices), sizeof(indices[0]));
+	//頂点インデックスリソースに書き込む-------------
+	uint16_t* pGpuIndexData = nullptr;
+	ib.Get()->Map(0, nullptr, reinterpret_cast<void**>(&pGpuIndexData));
+
+	for (int i = 0; i < _countof(indices); i++) {
+		pGpuIndexData[i] = indices[i];
+	}
+
+
+
 
 	// メインループ
 	while (true) {
@@ -128,10 +158,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		commandList->SetGraphicsRootSignature(rs.Get());
 		commandList->SetPipelineState(pipelineState.Get());
 		commandList->IASetVertexBuffers(0, 1, vb.GetView());
+		commandList->IASetIndexBuffer(ib.GetView());
 		//トポロジの設定
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		//頂点数,インデックス数,インデックスの開始位置,インデックスのオフセット
-		commandList->DrawInstanced(3, 1, 0, 0);
+		commandList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0);
 
 		// 描画終了		
 		dxCommon->PostDraw();
