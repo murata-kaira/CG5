@@ -105,12 +105,17 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		Vector4 position;
 	};
 
-	//頂点データの準備
+	//頂点データの準備（全画面を覆う4頂点）
 	VertexData vertices[] = {
-	    {0.0f, 0.5f, 0.0f, 1.0f}, //上
-	    {0.5f, -0.5f, 0.0f, 1.0f},   // 右下
-	    {-0.5f, -0.5f, 0.0f, 1.0f},  // 左下
+		{-1.0f, 1.0f, 0.0f, 1.0f},  // 左上
+		{1.0f, 1.0f, 0.0f, 1.0f},   // 右上
+		{-1.0f, -1.0f, 0.0f, 1.0f}, // 左下
+		{1.0f, -1.0f, 0.0f, 1.0f}   // 右下
 	};
+
+
+	
+
 
 
 	// VertexBufferの生成-----------------
@@ -126,9 +131,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		pGpuVertexData[i] = vertices[i];
 	}
 
+	// インデックスデータ（2つの三角形で四角形を描画）
 	uint16_t indices[] = {
-		0, 1, 2
+		0, 1, 2, // 1つ目の三角形（左上、右上、左下）
+		2, 1, 3  // 2つ目の三角形（左下、右上、右下）
 	};
+
 
 	//IndexBufferの生成-----------------
 	IndexBuffer ib;
