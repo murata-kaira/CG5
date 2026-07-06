@@ -22,7 +22,7 @@ void VertexBuffer::Create(const UINT size, const UINT stride) {
 	// 頂点リソースの設定
 	D3D12_RESOURCE_DESC vertexResourceDesc{};
 	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER; // バッファ
-	vertexResourceDesc.Width = sizeof(Vector4) * 3;                 // リソースのサイズ
+	vertexResourceDesc.Width = size;                                // リソースのサイズ
 	// バッファの場合はこれらは1にする決まり
 	vertexResourceDesc.Height = 1;
 	vertexResourceDesc.DepthOrArraySize = 1;
