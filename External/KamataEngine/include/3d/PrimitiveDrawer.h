@@ -44,9 +44,9 @@ public:
 	// パイプラインセット
 	struct PipelineSet {
 		// ルートシグネチャ
-		ID3D12RootSignature* rootSignature = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
 		// パイプラインステートオブジェクト
-		ID3D12PipelineState* pipelineState = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;
 	};
 
 	// メッシュ
@@ -70,11 +70,6 @@ public:
 	/// </summary>
 	/// <returns>シングルトンインスタンス</returns>
 	static PrimitiveDrawer* GetInstance();
-
-	/// <summary>
-	/// 終了処理
-	/// </summary>
-	static void Terminate();
 
 	/// <summary>
 	/// リソース生成
@@ -116,23 +111,10 @@ public:
 	void SetCamera(const Camera* camera) { camera_ = camera; }
 
 private:
-	PrimitiveDrawer& operator=(const PrimitiveDrawer&) = delete;
-
-	static std::unique_ptr<PrimitiveDrawer> sInstance_;
-
-public:
-	struct Passkey {
-	private:
-		friend PrimitiveDrawer;
-		Passkey() = default;
-	};
-
-	PrimitiveDrawer(Passkey);
-
-private:
-	friend std::default_delete<PrimitiveDrawer>;
 	PrimitiveDrawer() = default;
 	~PrimitiveDrawer() = default;
+	PrimitiveDrawer(const PrimitiveDrawer&) = delete;
+	PrimitiveDrawer& operator=(const PrimitiveDrawer&) = delete;
 
 	/// <summary>
 	/// グラフィックパイプライン生成
@@ -165,8 +147,14 @@ private:
 	const Camera* camera_ = nullptr;
 	// ブレンドモード
 	BlendMode blendMode_ = BlendMode::kNormal;
-	// パイプラインセット（キャッシュ）
-	std::array<PipelineSet, static_cast<size_t>(BlendMode::kCountOfBlendMode)> pipelineSetLines_;
+	// 頂点シェーダオブジェクト
+	Microsoft::WRL::ComPtr<IDxcBlob> vsBlob_;
+	// ピクセルシェーダオブジェクト
+	Microsoft::WRL::ComPtr<IDxcBlob> psBlob_;
+	// ルートシグネチャ
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
+	// パイプラインセット
+	std::array<std::unique_ptr<PipelineSet>, (uint16_t)BlendMode::kCountOfBlendMode> pipelineSetLines_;
 };
 
 } // namespace KamataEngine

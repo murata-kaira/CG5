@@ -5,7 +5,6 @@
 #include <array>
 #include <vector>
 #include <wrl.h>
-#include <memory>
 
 #include <XInput.h>
 #define DIRECTINPUT_VERSION 0x0800 // DirectInputのバージョン指定
@@ -49,11 +48,6 @@ public:
 
 public: // メンバ関数
 	static Input* GetInstance();
-
-	/// <summary>
-	/// 終了処理
-	/// </summary>
-	static void Terminate();
 
 	/// <summary>
 	/// 初期化
@@ -186,25 +180,11 @@ public: // メンバ関数
 
 private:
 	static BOOL CALLBACK EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) noexcept;
+	Input() = default;
+	~Input();
 	Input(const Input&) = delete;
 	const Input& operator=(const Input&) = delete;
 	void SetupJoysticks();
-
-	static std::unique_ptr<Input> sInstance_;
-
-public:
-	struct Passkey {
-	private:
-		friend Input;
-		Passkey() = default;
-	};
-
-	Input(Passkey);
-
-private: // メンバ関数
-	friend std::default_delete<Input>;
-	Input() = default;
-	~Input();
 
 private: // メンバ変数
 	Microsoft::WRL::ComPtr<IDirectInput8> dInput_;

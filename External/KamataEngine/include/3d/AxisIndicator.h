@@ -29,11 +29,6 @@ public:
 	static AxisIndicator* GetInstance();
 
 	/// <summary>
-	/// 終了処理
-	/// </summary>
-	static void Terminate();
-
-	/// <summary>
 	/// トレースするカメラのセット
 	/// </summary>
 	/// <param name="targetCamera">トレースするカメラ</param>
@@ -61,23 +56,10 @@ public:
 	void Draw();
 
 private:
-	AxisIndicator& operator=(const AxisIndicator&) = delete;
-
-	static std::unique_ptr<AxisIndicator> sInstance_;
-
-public:
-	struct Passkey {
-	private:
-		friend AxisIndicator;
-		Passkey() = default;
-	};
-
-	AxisIndicator(Passkey);
-
-private:
-	friend std::default_delete<AxisIndicator>;
 	AxisIndicator() = default;
 	~AxisIndicator() = default;
+	AxisIndicator(const AxisIndicator&) = delete;
+	AxisIndicator& operator=(const AxisIndicator&) = delete;
 
 	// DirectX基盤
 	DirectXCommon* dxCommon_ = nullptr;

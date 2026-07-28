@@ -25,13 +25,13 @@
 #include <audio\Audio.h>
 
 #include <base\DirectXCommon.h>
-#include <base\ShaderManager.h>
 #include <base\StringUtility.h>
 #include <base\TextureManager.h>
 #include <base\WinApp.h>
 
 #include <input\Input.h>
 
+#include <math\MathUtility.h>
 #include <math\Matrix4x4.h>
 #include <math\Vector2.h>
 #include <math\Vector3.h>

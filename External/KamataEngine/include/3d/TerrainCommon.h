@@ -18,9 +18,9 @@ public: // サブクラス
 	// パイプラインセット
 	struct PipelineSet {
 		// ルートシグネチャ
-		ID3D12RootSignature* rootSignature = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
 		// パイプラインステートオブジェクト
-		ID3D12PipelineState* pipelineState = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;
 	};
 
 	/// <summary>

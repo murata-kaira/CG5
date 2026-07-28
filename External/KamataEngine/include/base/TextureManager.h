@@ -5,7 +5,6 @@
 #include <string>
 #include <unordered_map>
 #include <wrl.h>
-#include <memory>
 
 namespace KamataEngine {
 
@@ -23,8 +22,10 @@ public:
 	struct Texture {
 		// テクスチャリソース
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
-		// デスクリプタインデックス
-		uint32_t descriptorIndex = 0;
+		// シェーダリソースビューのハンドル(CPU)
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuDescHandleSRV;
+		// シェーダリソースビューのハンドル(CPU)
+		CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescHandleSRV;
 		// 名前
 		std::string name;
 	};
@@ -47,11 +48,6 @@ public:
 	/// </summary>
 	/// <returns>シングルトンインスタンス</returns>
 	static TextureManager* GetInstance();
-
-	/// <summary>
-	/// 終了処理
-	/// </summary>
-	static void Terminate();
 
 	/// <summary>
 	/// システム初期化
@@ -79,32 +75,11 @@ public:
 	/// <param name="textureHandle">テクスチャハンドル</param>
 	void SetGraphicsRootDescriptorTable(ID3D12GraphicsCommandList* commandList, UINT rootParamIndex, uint32_t textureHandle);
 
-	/// <summary>
-	/// デスクリプタインデックスを取得
-	/// </summary>
-	/// <param name="textureHandle">テクスチャハンドル</param>
-	/// <returns>デスクリプタインデックス</returns>
-	uint32_t GetDescriptorIndex(uint32_t textureHandle);
-
 private:
-	TextureManager(const TextureManager&) = delete;
-	const TextureManager& operator=(const TextureManager&) = delete;
-
-	static std::unique_ptr<TextureManager> sInstance_;
-
-public:
-	struct Passkey {
-	private:
-		friend TextureManager;
-		Passkey() = default;
-	};
-
-	TextureManager(Passkey);
-
-private:
-	friend std::default_delete<TextureManager>;
 	TextureManager() = default;
 	~TextureManager() = default;
+	TextureManager(const TextureManager&) = delete;
+	TextureManager& operator=(const TextureManager&) = delete;
 
 	// C++のbitsetが内部詳細にアクセスできないのでfindFirst用に自作
 	template<size_t kNumberOfBits> class Bitset {
@@ -119,7 +94,6 @@ private:
 
 	private:
 		uint64_t& GetWord(size_t bitIndex);
-		const uint64_t& GetWord(size_t bitIndex) const;
 
 	private:
 		static constexpr size_t kCountOfWord = (kNumberOfBits == 0 ? 1 : ((kNumberOfBits - 1) / (8 * sizeof(uint64_t)) + 1));
@@ -132,8 +106,12 @@ private:
 
 	// デバイス
 	ID3D12Device* device_;
+	// デスクリプタサイズ
+	UINT sDescriptorHandleIncrementSize_ = 0u;
 	// ディレクトリパス
 	std::string directoryPath_;
+	// デスクリプタヒープ
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap_;
 	// テクスチャコンテナ
 	std::array<Texture, kNumDescriptors> textures_;
 	Bitset<kNumDescriptors> useTable_;

@@ -344,4 +344,5 @@ MigrationBackup/
 .ionide/
 
 NoviceResources/
-imgui.ini
+DirectXGame/imgui.ini
+Novice/imgui.ini

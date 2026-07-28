@@ -24,7 +24,6 @@ public: // サブクラス
 		Vector3 uvScale;  // UVスケール
 		float wrap;       // ラップ係数
 		Vector3 uvOffset; // UVオフセット
-		uint32_t textureDescriptorIndex; // デスクリプタインデックス
 	};
 
 public: // 静的メンバ関数
@@ -67,15 +66,17 @@ public:
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="rootParameterIndexMaterial">マテリアルのルートパラメータ番号</param>
-	void SetGraphicsCommand(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial);
+	/// <param name="rootParameterIndexTexture">テクスチャのルートパラメータ番号</param>
+	void SetGraphicsCommand(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial, UINT rootParameterIndexTexture);
 
 	/// <summary>
 	/// グラフィックスコマンドのセット（テクスチャ差し替え版）
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="rootParameterIndexMaterial">マテリアルのルートパラメータ番号</param>
+	/// <param name="rootParameterIndexTexture">テクスチャのルートパラメータ番号</param>
 	/// <param name="textureHandle">差し替えるテクスチャハンドル</param>
-	void SetGraphicsCommand(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial, uint32_t textureHandle);
+	void SetGraphicsCommand(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial, UINT rootParameterIndexTexture, uint32_t textureHandle);
 
 	// テクスチャハンドル
 	uint32_t GetTextureHandle() const { return textureHandle_; }

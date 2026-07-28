@@ -4,14 +4,10 @@
 #include <3d\Material.h>
 #include <3d\Mesh.h>
 #include <3d\ObjectColor.h>
-#include <3d\WorldTransform.h>
-#include <array>
-#include <base\DirectXCommon.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <dxcapi.h>
-#include <memory>
 
 namespace KamataEngine {
 
@@ -24,16 +20,12 @@ class WorldTransform;
 class ModelCommon {
 public:
 	static ModelCommon* GetInstance();
-
-	/// <summary>
-	/// 終了処理
-	/// </summary>
 	static void Terminate();
 
 	// パイプラインセット
 	struct PipelineSet {
-		ID3D12PipelineState* pipelineState = nullptr;
-		ID3D12RootSignature* rootSignature = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
 	};
 
 	// カリングモード
@@ -128,24 +120,10 @@ public:
 	ObjectColor* GetObjectColor() const { return defaultObjectColor_.get(); }
 
 private:
-	ModelCommon(const ModelCommon&) = delete;
-	ModelCommon& operator=(ModelCommon&) = delete;
-
-	static std::unique_ptr<ModelCommon> sInstance_;
-
-public:
-	struct Passkey {
-	private:
-		friend ModelCommon;
-		Passkey() = default;
-	};
-
-	ModelCommon(Passkey);
-
-private:
-	friend std::default_delete<ModelCommon>;
 	ModelCommon() = default;
 	~ModelCommon() = default;
+	ModelCommon(ModelCommon&) = delete;
+	ModelCommon& operator=(ModelCommon&) = delete;
 
 	/// <summary>
 	/// グラフィックスパイプラインの初期化
@@ -160,22 +138,27 @@ private:
 
 	void CreateAndAddPipelineSet(CullingMode cullingMode, BlendMode blendMode, DepthTestMode depthTestMode);
 
+	// シングルトンインスタンス
+	static ModelCommon* sInstance_;
+
 	bool initialized_ = false;
 
 	// デスクリプタサイズ
 	UINT descriptorHandleIncrementSize_ = 0u;
 	// コマンドリスト
 	ID3D12GraphicsCommandList* commandList_ = nullptr;
-	// パイプラインセット（キャッシュ）
-	using PipelineCache = std::array<std::array<std::array<PipelineSet, 
-		static_cast<size_t>(DepthTestMode::kCount)>, 
-		static_cast<size_t>(BlendMode::kCount)>, 
-		static_cast<size_t>(CullingMode::kCount)>;
-	PipelineCache pipelineSets_;
+	// パイプラインセット
+	std::unordered_map<PipelineSetKey, PipelineSet, PipelineSetKeyHash, PipelineSetKeyEqual> pipelineSets_;
 	// デフォルトライト
 	std::unique_ptr<LightGroup> defaultLightGroup_;
 	// デフォルトオブジェクトα
 	std::unique_ptr<ObjectColor> defaultObjectColor_;
+	// 頂点シェーダオブジェクト
+	Microsoft::WRL::ComPtr<IDxcBlob> vsBlob_;
+	// ピクセルシェーダオブジェクト
+	Microsoft::WRL::ComPtr<IDxcBlob> psBlob_;
+	// ルートシグネチャ
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 };
 
 /// <summary>
@@ -190,6 +173,7 @@ public: // 列挙子
 		kWorldTransform, // ワールド変換行列
 		kCamera,         // カメラ
 		kMaterial,       // マテリアル
+		kTexture,        // テクスチャ
 		kLight,          // ライト
 		kObjectColor,    // オブジェクトアルファ
 	};
@@ -204,6 +188,16 @@ private:
 	static const char* kDefaultModelName;
 
 public: // 静的メンバ関数
+	/// <summary>
+	/// ゲーム中一度だけ実行する初期化
+	/// </summary>
+	static void StaticInitialize();
+
+	/// <summary>
+	/// ゲーム中一度だけ実行する終了処理
+	/// </summary>
+	static void StaticFinalize();
+
 	/// <summary>
 	/// 3Dモデル生成
 	/// </summary>

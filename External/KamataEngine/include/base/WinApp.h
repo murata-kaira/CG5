@@ -2,7 +2,6 @@
 #include <Windows.h>
 #include <cstdint>
 #include <string>
-#include <memory>
 
 namespace KamataEngine {
 
@@ -29,11 +28,6 @@ public: // 静的メンバ関数
 	/// </summary>
 	/// <returns>シングルトンインスタンス</returns>
 	static WinApp* GetInstance();
-
-	/// <summary>
-	/// 終了処理
-	/// </summary>
-	static void Terminate();
 
 	/// <summary>
 	/// ウィンドウプロシージャ
@@ -99,24 +93,10 @@ public: // メンバ関数
 	SizeChangeMode GetSizeChangeMode() const;
 
 private: // メンバ関数
+	WinApp() = default;
+	~WinApp() = default;
 	WinApp(const WinApp&) = delete;
 	const WinApp& operator=(const WinApp&) = delete;
-
-	static std::unique_ptr<WinApp> sInstance_;
-
-public:
-	struct Passkey {
-	private:
-		friend WinApp;
-		Passkey() = default;
-	};
-
-	WinApp(Passkey);
-
-private: // メンバ関数
-	friend std::default_delete<WinApp>;
-	WinApp() = default;
-	~WinApp();
 
 private: // メンバ変数
 	// Window関連

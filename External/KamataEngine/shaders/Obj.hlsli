@@ -19,7 +19,6 @@ cbuffer Material : register(b2) {
 	float3 m_uv_scale : packoffset(c3);  // UVスケール
 	float m_wrap : packoffset(c3.w);     // ラップ係数
 	float3 m_uv_offset : packoffset(c4); // UVオフセット
-	uint m_textureDescriptorIndex : packoffset(c4.w); // デスクリプタインデックス
 }
 
 // 平行光源の数

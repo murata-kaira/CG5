@@ -33,6 +33,7 @@ void IndexBuffer::Create(const UINT size, const UINT stride) {
 
 	// インデックスリソースを生成する
 	ID3D12Resource* indexResource = nullptr;
+	[[maybe_unused]]
 	HRESULT hr =
 	    dxCommon->GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &indexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&indexResource));
 	assert(SUCCEEDED(hr));

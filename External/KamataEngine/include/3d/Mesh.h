@@ -104,15 +104,17 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="commandList">命令発行先コマンドリスト</param>
 	/// <param name="rootParameterIndexMaterial">マテリアルのルートパラメータ番号</param>
-	void Draw(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial);
+	/// <param name="rootParameterIndexTexture">テクスチャのルートパラメータ番号</param>
+	void Draw(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial, UINT rootParameterIndexTexture);
 
 	/// <summary>
 	/// 描画（テクスチャ差し替え版）
 	/// </summary>
 	/// <param name="commandList">命令発行先コマンドリスト</param>
 	/// <param name="rootParameterIndexMaterial">マテリアルのルートパラメータ番号</param>
+	/// <param name="rootParameterIndexTexture">テクスチャのルートパラメータ番号</param>
 	/// <param name="textureHandle">差し替えるテクスチャハンドル</param>
-	void Draw(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial, uint32_t textureHandle);
+	void Draw(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndexMaterial, UINT rootParameterIndexTexture, uint32_t textureHandle);
 
 	/// <summary>
 	/// 頂点配列を取得
